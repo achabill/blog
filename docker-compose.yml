@@ -1,0 +1,89 @@
+version: "2.3"
+
+services:
+
+  api:
+    build:
+      context: .
+    image: molecular-microservices-blog-api
+    env_file: docker-compose.env
+    environment:
+      SERVICES: api
+      PORT: 4000
+    links:
+      - nats
+      - redis
+    depends_on:
+      - nats
+      - redis
+    labels:
+      - "traefik.enable=true"   
+      - "traefik.backend=api"
+      - "traefik.port=3000"
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.frontend.rule=PathPrefix:/"
+    ports:
+      - 4000:4000
+    command: npm run dev
+    volumes:
+      - .:/opt/app
+
+  users:
+    build:
+      context: .
+    image: molecular-microservices-blog-users
+    env_file: docker-compose.env
+    environment:
+      SERVICES: users
+    links:
+      - nats
+      - redis
+      - users_mongodb
+    depends_on:
+      - nats
+      - redis
+      - users_mongodb
+      - api
+    volumes:
+      - .:/opt/app
+
+  users_mongodb:
+      image: mongo
+
+  posts:
+    build:
+      context: .
+    image: molecular-microservices-blog-posts
+    env_file: docker-compose.env
+    environment:
+      SERVICES: posts
+    links:
+      - nats
+      - redis
+      - posts_mongodb
+    depends_on:
+      - nats
+      - redis
+      - posts_mongodb
+      - api
+    volumes:
+      - .:/opt/app
+
+  posts_mongodb:
+      image: mongo
+
+  nats:
+    image: nats
+
+  redis:
+    image: redis
+
+  traefik:
+    image: traefik
+    command: --web --docker --docker.domain=docker.localhost --logLevel=INFO --docker.exposedbydefault=false
+    ports:
+      - "3000:80"
+      - "3001:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
