@@ -1,0 +1,28 @@
+sudo: true
+
+stages:
+  - test
+  - deploy
+
+language: node_js
+node_js: '8'
+
+env:
+  - CODECOV_TOKEN="5f447e06-8b5b-465a-b6bb-d9f0b501f441"
+
+services:
+  - docker
+
+install:
+  - npm install npm@^5
+
+cache:
+  directories:
+  - ~/.npm
+  - node_modules
+
+jobs:
+  include:
+    - stage: test
+      env: DOCKER_COMPOSE_VERSION=2.3
+      script: cd scripts && ./test.sh

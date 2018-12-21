@@ -9,7 +9,7 @@ const { ForbiddenError } = require("moleculer-web").Errors;
  */
 module.exports = {
 	name: "posts",
-	mixins: [new DbService("posts", process.env.POSTS_MONGODB || "mongodb://localhost:27017/garriblog")],
+	mixins: [new DbService("posts", process.env.POSTS_MONGODB)],
 
 	/**
 	 * Service settings
@@ -48,18 +48,13 @@ module.exports = {
 		create: {
 			auth: "required",
 			params: {
-				post: {
-					type: "object",
-					props: {
-						title: { type: "string", min: 1 },
-						body: { type: "string", min: 2 },
-						tagList: { type: "array", items: "string", optional: true }
-					}
-				}
+				title: { type: "string", min: 1 },
+				body: { type: "string", min: 2 },
+				tagList: { type: "array", items: "string", optional: true }
 			},
 			handler(ctx) {
 				return new Promise((resolve, reject) => {
-					let post = ctx.params.post;
+					let post = ctx.params;
 					post.author = ctx.meta.user._id;
 					post.createdAt = new Date();
 					post.updatedAt = new Date();
@@ -80,7 +75,7 @@ module.exports = {
 				return new Promise((resolve, reject) => {
 					this.adapter.findById(ctx.params.id).then(post => {
 						if (!post) {
-							reject(new MoleculerClientError("Post not found", 404));
+							return reject(new MoleculerClientError("Post not found", 404));
 						}
 						resolve(post => this.transformDocuments(ctx, { populate: ["author"] }, post));
 					}).catch(err => reject(err));
@@ -105,10 +100,10 @@ module.exports = {
 				return new Promise((resolve, reject) => {
 					this.adapter.findById(ctx.params.id).then(post => {
 						if (!post) {
-							reject(new MoleculerClientError("post not found", 404));
+							return reject(new MoleculerClientError("post not found", 404));
 						}
 						if (post.author != ctx.meta.user._id) {
-							reject(new ForbiddenError());
+							return reject(new ForbiddenError());
 						}
 						const update = {
 							"$set": ctx.params.post
@@ -138,7 +133,8 @@ module.exports = {
 						populate: ["author"]
 					};
 
-					this.adapter.find(params).then(posts => resolve(this.transformDocuments(ctx, params, posts)))
+					this.adapter.find(params)
+						.then(posts => resolve(this.transformDocuments(ctx, params, posts)))
 						.catch(err => reject(err));
 				});
 			}
@@ -153,12 +149,13 @@ module.exports = {
 				return new Promise((resolve, reject) => {
 					this.adapter.findById(ctx.params.id).then(post => {
 						if (!post) {
-							reject(new MoleculerClientError("Post not found", 404));
+							return reject(new MoleculerClientError("Post not found", 404));
 						}
 						if (post.author != ctx.meta.user._id) {
-							reject(new ForbiddenError());
+							return reject(new ForbiddenError());
 						}
-						this.adapter.removeById(post._id).then(resolve({}))
+						this.adapter.removeById(post._id)
+							.then(resolve({}))
 							.catch(err => reject(err));
 					}).catch(err => reject(err));
 				});
