@@ -12,14 +12,14 @@ const jwt = require("jsonwebtoken");
 module.exports = {
 
 	name: "users",
-	mixins: [DbService("users", process.env.USERS_MONGODB || "mongodb://localhost:27017/garriblog")],
+	mixins: [DbService("users", process.env.USERS_MONGODB)],
 
 	/**
 	 * Service settings
 	 */
 	settings: {
 		/** public fields */
-		fields: ["_id", "username", "bio", "image", "email"],
+		fields: ["_id", "username", "bio", "image"],
 		JWT_SECRET: process.env.JWT_SECRET || "secret",
 	},
 
@@ -41,22 +41,17 @@ module.exports = {
 	actions: {
 		create: {
 			params: {
-				user: {
-					type: "object",
-					props: {
-						username: { type: "string", min: 2, max: 24 },
-						password: { type: "string", min: 8 },
-						bio: { type: "string", optional: true },
-						image: { type: "string", optional: true }
-					}
-				}
+				username: { type: "string", min: 2, max: 24 },
+				password: { type: "string", min: 8 },
+				bio: { type: "string", optional: true },
+				image: { type: "string", optional: true }
 			},
 			handler(ctx) {
 				return new Promise((resolve, reject) => {
-					let user = ctx.params.user;
+					let user = ctx.params;
 					this.adapter.findOne({ username: user.username }).then(found => {
 						if (found) {
-							reject(new MoleculerClientError("Username already exists", 409));
+							return reject(new MoleculerClientError("Username already exists", 409));
 						}
 						user.password = bcrypt.hashSync(user.password, 10);
 						user.bio = user.bio || "";
@@ -64,39 +59,30 @@ module.exports = {
 						user.createdAt = new Date();
 						user.updatedAt = new Date();
 
-						this.adapter.insert(user).then(user => {
-							this.entityCreated(user, ctx).then(json => {
-								resolve(this.transformUser(user, true, ctx.meta.token));
-							});
-						}).catch(err => {
-							reject(err);
-						});
+						this.adapter.insert(user)
+							.then(user => resolve(this.transformUser(user, true, ctx.meta.token)))
+							.catch(err => reject(err));
 					}).catch(err => reject(err));
 				});
 			}
 		},
 		login: {
 			params: {
-				user: {
-					type: "object",
-					props: {
-						username: { type: "string", min: 2, max: 24 },
-						password: { type: "string", min: 8 }
-					}
-				}
+				username: { type: "string", min: 2, max: 24 },
+				password: { type: "string", min: 8 }
 			},
 			handler(ctx) {
-				const { username, password } = ctx.params.user;
+				const { username, password } = ctx.params
 				return new Promise((resolve, reject) => {
 					this.adapter.findOne({ username: username }).then(user => {
 						if (!user) {
-							reject(new MoleculerClientError("Username not found", 404));
+							return reject(new MoleculerClientError("Username not found", 404));
 						}
-						bcrypt.compare(password, user.password).then(res => {
-							res ? resolve(this.transformUser(user, true, ctx.meta.token))
-								: reject(new MoleculerClientError("Username or password incorrent", 401));
-						});
-					}).catch(err => reject(err));
+						bcrypt.compare(password, user.password)
+							.then(res => res ? resolve(this.transformUser(user, true, ctx.meta.token))
+								: reject(new MoleculerClientError("Username or password incorrect", 401))
+							).catch(err => reject(err));
+					});
 				});
 			}
 		},
@@ -109,33 +95,33 @@ module.exports = {
 				return new Promise((resolve, reject) => {
 					this.getById(ctx.meta.user._id).then(user => {
 						if (!user) {
-							reject(new MoleculerClientError("User not found", 404));
+							return reject(new MoleculerClientError("User not found", 404));
 						}
-						resolve(this.transformUser(user, true, ctx.meta.token));
+						return resolve(this.transformUser(user, true, ctx.meta.token));
 					}).catch(err => reject(new MoleculerClientError(err.message)));
 				});
 			}
+		}
+	},
+	resolveToken: {
+		cache: {
+			keys: ["token"],
+			ttl: 60 * 60
 		},
-		resolveToken: {
-			cache: {
-				keys: ["token"],
-				ttl: 60 * 60
-			},
-			params: {
-				token: { type: "string" }
-			},
-			handler(ctx) {
-				return new Promise((resolve, reject) => {
-					try {
-						let decoded = jwt.verify(ctx.params.token, this.settings.JWT_SECRET);
-						this.getById(decoded.id).then(user => {
-							resolve(user);
-						}).catch(err => reject(err));
-					} catch (err) {
-						reject(err);
-					}
-				});
-			}
+		params: {
+			token: { type: "string" }
+		},
+		handler(ctx) {
+			return new Promise((resolve, reject) => {
+				try {
+					let decoded = jwt.verify(ctx.params.token, this.settings.JWT_SECRET);
+					this.getById(decoded.id)
+						.then(user => resolve(user))
+						.catch(err => reject(err));
+				} catch (err) {
+					return reject(err);
+				}
+			});
 		}
 	},
 
@@ -199,4 +185,4 @@ module.exports = {
 	stopped() {
 
 	}
-};
+}

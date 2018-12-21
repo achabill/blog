@@ -14,7 +14,6 @@ module.exports = {
 		port: process.env.PORT || 4000,
 		path: "/api",
 		logRequestParams: "info",
-		logResponseData: "debug",
 		cors: true,
 		use: [bodyParser({
 			json: {
@@ -30,7 +29,7 @@ module.exports = {
 				authorization: true,
 				whitelist: ["**"],
 				aliases: {
-					"POST signup": "users.create",
+					"POST ": "users.create",
 					"POST login": "users.login",
 					"GET profile": "users.profile",
 					"health": "$node.health"

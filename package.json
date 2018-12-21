@@ -7,7 +7,7 @@
     "start": "moleculer-runner",
     "cli": "moleculer connect NATS",
     "ci": "jest --watch",
-    "test": "jest --coverage",
+    "test": "NODE_ENV=test jest && codecov --token=5f447e06-8b5b-465a-b6bb-d9f0b501f441",
     "lint": "eslint services --fix",
     "dc:up": "docker-compose up --build -d",
     "dc:down": "docker-compose down"
@@ -18,6 +18,7 @@
   ],
   "author": "Bill Acha",
   "devDependencies": {
+    "codecov": "^3.1.0",
     "eslint": "^5.10.0",
     "jest": "^23.6.0",
     "jest-cli": "^23.6.0",
@@ -38,8 +39,8 @@
     "node": ">= 8.x.x"
   },
   "jest": {
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true,
     "rootDir": "./services",
     "roots": [
       "../test"
