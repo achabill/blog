@@ -7,9 +7,6 @@ stages:
 language: node_js
 node_js: '8'
 
-env:
-  - CODECOV_TOKEN="5f447e06-8b5b-465a-b6bb-d9f0b501f441"
-
 services:
   - docker
 
