@@ -19,7 +19,7 @@ Contains general user management.
 
 | Method   | Path   | Description  | Requires Auth |
 | ------- |---------| -----| ---- |
-| POST | /users/signup | Signs a user up and returns created user | 
+| POST | /users/ | Signs a user up and returns created user | 
 | POST | /users/login | Logs in a user and returns logged in user |
 | GET | /users/profile | Get user profile | x |
 
