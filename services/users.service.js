@@ -1,7 +1,6 @@
 "use strict";
 
 const { MoleculerClientError } = require("moleculer").Errors;
-const E = require("moleculer-web").Errors;
 const DbService = require("../mixins/db.mixin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -72,7 +71,7 @@ module.exports = {
 				password: { type: "string", min: 8 }
 			},
 			handler(ctx) {
-				const { username, password } = ctx.params
+				const { username, password } = ctx.params;
 				return new Promise((resolve, reject) => {
 					this.adapter.findOne({ username: username }).then(user => {
 						if (!user) {
@@ -185,4 +184,4 @@ module.exports = {
 	stopped() {
 
 	}
-}
+};

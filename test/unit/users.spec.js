@@ -51,5 +51,5 @@ describe("Test 'users' service", () => {
             user.password = "wrongpasssword";
             expect(broker.call("users.login", user)).rejects.toHaveProperty("message", "Username or password incorrect").then()
         });
-    })
+    });
 });

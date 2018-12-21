@@ -21,5 +21,7 @@ cache:
 jobs:
   include:
     - stage: test
-      env: DOCKER_COMPOSE_VERSION=2.3
-      script: cd scripts && ./test.sh
+      env: 
+        - DOCKER_COMPOSE_VERSION=2.3
+        - NODE_ENV=test
+      script: npm run dctest:up

@@ -7,10 +7,12 @@
     "start": "moleculer-runner",
     "cli": "moleculer connect NATS",
     "ci": "jest --watch",
-    "test": "NODE_ENV=test jest && codecov --token=5f447e06-8b5b-465a-b6bb-d9f0b501f441",
+    "test": "NODE_ENV=test jest && codecov",
     "lint": "eslint services --fix",
     "dc:up": "docker-compose up --build -d",
-    "dc:down": "docker-compose down"
+    "dc:down": "docker-compose down",
+    "dctest:up": "docker-compose -f docker-compose.test.yml up --build --exit-code-from api",
+    "dctest:down": "docker-compose -f docker-compose.test.yml down"
   },
   "keywords": [
     "microservices",
@@ -22,7 +24,8 @@
     "eslint": "^5.10.0",
     "jest": "^23.6.0",
     "jest-cli": "^23.6.0",
-    "moleculer-repl": "^0.5.3"
+    "moleculer-repl": "^0.5.3",
+    "pre-commit": "^1.2.2"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -39,11 +42,14 @@
     "node": ">= 8.x.x"
   },
   "jest": {
-    "coverageDirectory": "./coverage/",
+    "coverageDirectory": "../coverage/",
     "collectCoverage": true,
     "rootDir": "./services",
     "roots": [
       "../test"
     ]
-  }
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }

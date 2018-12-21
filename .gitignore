@@ -62,3 +62,7 @@ typings/
 
 #vscode
 .vscode/
+
+#Jetbrains
+.idea/
+*.iml

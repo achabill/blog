@@ -1,6 +1,8 @@
 # GarriBlog
 
-GarriBlog is a platform for people to share their thoughts.
+![](https://travis-ci.com/achabill/garriblog.svg?branch=master)  ![](https://codecov.io/gh/achabill/garriblog/branch/master/graph/badge.svg) ![](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg) ![](https://img.shields.io/badge/npm-v6.3.0-blue.svg) 
+
+GarriBlog is a microservice platform for people to share their thoughts.
 
 This is a proof-of-concept, which demonstrates Microservice Architecture Pattern using Moleculer and Docker.
 
@@ -167,6 +169,13 @@ In this configuration, Travis CI builds tagged images for each successful git pu
 - `npm test`: Run tests & generate coverage report
 - `npm run dc:up`: Start the stack with Docker Compose
 - `npm run dc:down`: Stop the stack with Docker Compose
+- `npm run dctest:up`: Start the test stack with Docker Compose
+- `npm run dctest:down`: Stop the test stack with Docker Compose
 
-## Contributions welcome!
+## Contributing 
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
+
 GarriBlog is open source, and would greatly appreciate your help. Feel free to suggest and implement improvements.
+
+## Web and mobile apps
+Any web/mobile app developers? 
