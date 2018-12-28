@@ -18,7 +18,15 @@ module.exports = {
 	 */
 	settings: {
 		/** public fields */
-		fields: ["_id", "username", "bio", "image"],
+		fields: ["_id", "username", "bio", "image", "followersCount", "followingCount"],
+		populates: {
+			followersCount(ids, users, rule, ctx) {
+				return this.Promise.all(users.map(user => ctx.call("follows.followersCount", { user: user._id })));
+			},
+			followingCount(ids, users, rule, ctx) {
+				return this.Promise.all(users.map(user => ctx.call("follows.followingCount", { user: user._id })));
+			}
+		},
 		JWT_SECRET: process.env.JWT_SECRET || "secret",
 	},
 
@@ -96,32 +104,33 @@ module.exports = {
 						if (!user) {
 							return reject(new MoleculerClientError("User not found", 404));
 						}
-						return resolve(this.transformUser(user, true, ctx.meta.token));
+						this.transformDocuments(ctx, { populate: ["followersCount", "followingCount"] }, user)
+							.then(user => resolve(this.transformUser(user, true, ctx.meta.token)));
 					}).catch(err => reject(new MoleculerClientError(err.message)));
 				});
 			}
-		}
-	},
-	resolveToken: {
-		cache: {
-			keys: ["token"],
-			ttl: 60 * 60
 		},
-		params: {
-			token: { type: "string" }
+		resolveToken: {
+			cache: {
+				keys: ["token"],
+				ttl: 60 * 60
+			},
+			params: {
+				token: { type: "string" }
+			},
+			handler(ctx) {
+				return new Promise((resolve, reject) => {
+					try {
+						let decoded = jwt.verify(ctx.params.token, this.settings.JWT_SECRET);
+						this.getById(decoded.id)
+							.then(user => resolve(user))
+							.catch(err => reject(err));
+					} catch (err) {
+						return reject(err);
+					}
+				});
+			}
 		},
-		handler(ctx) {
-			return new Promise((resolve, reject) => {
-				try {
-					let decoded = jwt.verify(ctx.params.token, this.settings.JWT_SECRET);
-					this.getById(decoded.id)
-						.then(user => resolve(user))
-						.catch(err => reject(err));
-				} catch (err) {
-					return reject(err);
-				}
-			});
-		}
 	},
 
 	/**

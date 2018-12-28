@@ -9,18 +9,25 @@ const { ForbiddenError } = require("moleculer-web").Errors;
  */
 module.exports = {
 	name: "posts",
-	mixins: [new DbService("posts", process.env.POSTS_MONGODB)],
+	mixins: [DbService("posts", process.env.POSTS_MONGODB)],
 
 	/**
 	 * Service settings
 	 */
 	settings: {
-		fields: ["_id", "title", "body", "tagList", "starCount", "comments", "author"],
+		fields: ["_id", "title", "body", "tagList", "stars", "comments", "author"],
 		populates: {
 			author: {
 				action: "users.get",
 				params: {
 					fields: ["username", "bio", "image"]
+				}
+			},
+			comments: {
+				action: "comments.get",
+				params: {
+					fields: ["_id", "body", "createdAt", "author"],
+					populates: ["author"]
 				}
 			}
 		},
@@ -77,7 +84,7 @@ module.exports = {
 						if (!post) {
 							return reject(new MoleculerClientError("Post not found", 404));
 						}
-						resolve(post => this.transformDocuments(ctx, { populate: ["author"] }, post));
+						resolve(post => this.transformDocuments(ctx, { populate: ["author", "stars", "comments"] }, post));
 					}).catch(err => reject(err));
 				});
 			}
@@ -130,7 +137,7 @@ module.exports = {
 						limit,
 						offset,
 						sort: ["-createdAt"],
-						populate: ["author"]
+						populate: ["author", "stars", "comments"]
 					};
 
 					this.adapter.find(params)
