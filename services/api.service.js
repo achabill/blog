@@ -34,7 +34,7 @@ module.exports = {
 					"GET profile": "users.profile",
 					"health": "$node.health"
 				},
-				mappingPolicy: "all",
+				mappingPolicy: "restrict",
 			},
 			{
 				path: "/posts",
@@ -45,7 +45,47 @@ module.exports = {
 				aliases: {
 					"REST ": "posts"
 				}
-			}
+			},
+			{
+				path: "/comments",
+				authorization: true,
+				whitelist: ["**"],
+				aliases: {
+					"POST ": "comments.create",
+					"GET :id ": "comments.get",
+					"GET ": "comments.list",
+					"DELETE ": "comments.remove"
+				},
+				mappingPolicy: "restrict",
+			},
+			{
+				path: "/follows",
+				authorization: true,
+				whitelist: ["**"],
+				aliases: {
+					"POST ": "follows.create",
+					"DELETE ": "follows.remove",
+					"GET followers": "follows.followers",
+					"GET following": "follows.followings",
+					"GET followingCount": "follows.followingCount",
+					"GET followersCount": "follows.followersCount",
+					"GET has": "follows.has"
+				},
+				mappingPolicy: "restrict",
+			},
+			{
+				path: "/stars",
+				authorization: true,
+				whitelist: ["**"],
+				aliases: {
+					"POST ": "stars.create",
+					"GET :id": "stars.get",
+					"GET ": "stars.list",
+					"DELETE ": "stars.remove"
+				},
+				mappingPolicy: "restrict",
+			},
+
 		]
 	},
 	methods: {

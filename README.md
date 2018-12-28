@@ -179,3 +179,35 @@ GarriBlog is open source, and would greatly appreciate your help. Feel free to s
 
 ## Web and mobile apps
 Any web/mobile app developers? 
+
+## Features
+
+These are just simple features. They are not law and final. 
+Contribution to  this section is highly welcomed.
+
+- Users
+    - create/login users
+    - implement refresh tokens
+    - implement logout by blacklisting tokens
+    - update account -> reset password
+
+- Posts
+    - CRUD posts
+    - star/unstar post
+    - should we keep post revisions?
+    - Should posts include media(pictures/video)?
+
+- Comments on posts
+    - CRUD comment.
+    - star/unstar comment 
+    - for simplicity, do not reply comment
+    - should we keep comment revision?
+
+
+- Social
+    - follow/unfollow people
+
+- App metrics and service stats
+- Cache when ever possible
+
+- Unit test contributions are welcomed too :)

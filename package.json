@@ -9,7 +9,7 @@
     "ci": "jest --watch",
     "test": "NODE_ENV=test jest && codecov",
     "lint": "eslint services --fix",
-    "dc:up": "docker-compose up --build -d",
+    "dc:up": "docker-compose up --build",
     "dc:down": "docker-compose down",
     "dctest:up": "docker-compose -f docker-compose.test.yml up --build --exit-code-from api",
     "dctest:down": "docker-compose -f docker-compose.test.yml down"
